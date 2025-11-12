@@ -1,5 +1,14 @@
-
-import { Controller, Get, Post, Body, Param, Delete, Put, BadRequestException, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  BadRequestException,
+  UseGuards,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -14,14 +23,12 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
-
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<User> {
     const user = await this.usersService.findOne(Number(id));
     if (!user) throw new BadRequestException('Usuario no encontrado');
     return user;
   }
-
 
   @Post()
   async create(@Body() user: Partial<User>): Promise<User> {

@@ -10,7 +10,10 @@ export class AuthController {
     if (!body || !body.correo || !body.password) {
       throw new BadRequestException('Correo y password son requeridos');
     }
-    const user = await this.authService.validateUser(body.correo, body.password);
+    const user = await this.authService.validateUser(
+      body.correo,
+      body.password,
+    );
     if (!user) {
       return { message: 'Correo o password incorrectos' };
     }

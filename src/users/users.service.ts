@@ -1,4 +1,3 @@
-
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -17,16 +16,13 @@ export class UsersService {
     return this.usersRepository.find();
   }
 
-
   findOne(id: number): Promise<User | null> {
     return this.usersRepository.findOneBy({ id });
   }
 
-
   findByCorreo(correo: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ correo });
   }
-
 
   async create(user: Partial<User>): Promise<User> {
     if (!user.password) throw new BadRequestException('Password requerido');
@@ -35,7 +31,11 @@ export class UsersService {
     try {
       return await this.usersRepository.save(newUser);
     } catch (error) {
-      if (error instanceof QueryFailedError && (error.driverError?.code === 'ER_DUP_ENTRY' || error.message.includes('UNIQUE constraint failed: user.correo'))) {
+      if (
+        error instanceof QueryFailedError &&
+        (error.driverError?.code === 'ER_DUP_ENTRY' ||
+          error.message.includes('UNIQUE constraint failed: user.correo'))
+      ) {
         throw new BadRequestException('El correo ya está registrado');
       }
       throw error;
