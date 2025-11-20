@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindManyOptions, Repository } from 'typeorm';
 import { Actividad } from './actividad.entity';
+import { CreateActividadDto } from './dtos/create-actividad.dto';
+import { UpdateActividadDto } from './dtos/update-actividad.dto';
 
 @Injectable()
 export class ActividadService {
@@ -10,21 +12,35 @@ export class ActividadService {
     private actividadRepository: Repository<Actividad>,
   ) {}
 
-  async create(actividad: Partial<Actividad>): Promise<Actividad> {
-    const nuevaActividad = this.actividadRepository.create(actividad);
+  async create(createActividadDto: CreateActividadDto): Promise<Actividad> {
+    const nuevaActividad = this.actividadRepository.create(createActividadDto);
     return await this.actividadRepository.save(nuevaActividad);
   }
 
-  async findAll(): Promise<Actividad[]> {
+  async findAll(
+    tipoId?: number,
+    nivelDificultadId?: number,
+  ): Promise<Actividad[]> {
+    const where: FindManyOptions<Actividad>['where'] = {};
+
+    if (tipoId !== undefined) {
+      where.tipoId = tipoId;
+    }
+
+    if (nivelDificultadId !== undefined) {
+      where.nivelDificultadId = nivelDificultadId;
+    }
+
     return await this.actividadRepository.find({
-      relations: ['preguntas', 'resultados'],
+      where: { ...where },
+      relations: ['preguntas', 'sesiones', 'tipo', 'nivelDificultad'],
     });
   }
 
   async findOne(id: number): Promise<Actividad> {
     const actividad = await this.actividadRepository.findOne({
       where: { id },
-      relations: ['preguntas', 'resultados'],
+      relations: ['preguntas', 'sesiones', 'tipo', 'nivelDificultad'],
     });
     if (!actividad) {
       throw new NotFoundException(`Actividad con ID ${id} no encontrada`);
@@ -32,22 +48,8 @@ export class ActividadService {
     return actividad;
   }
 
-  async findByNivel(nivelDificultad: string): Promise<Actividad[]> {
-    return await this.actividadRepository.find({
-      where: { nivelDificultad },
-      relations: ['preguntas'],
-    });
-  }
-
-  async findByTipo(tipo: string): Promise<Actividad[]> {
-    return await this.actividadRepository.find({
-      where: { tipo },
-      relations: ['preguntas'],
-    });
-  }
-
-  async update(id: number, updateData: Partial<Actividad>): Promise<Actividad> {
-    await this.actividadRepository.update(id, updateData);
+  async update(id: number, updateActividadDto: UpdateActividadDto): Promise<Actividad> {
+    await this.actividadRepository.update(id, updateActividadDto);
     return this.findOne(id);
   }
 

@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SesionEntrenamiento } from './sesion-entrenamiento.entity';
+import { CreateSesionEntrenamientoDto } from './dtos/create-sesion-entrenamiento.dto';
+import { UpdateSesionEntrenamientoDto } from './dtos/update-sesion-entrenamiento.dto';
 
 @Injectable()
 export class SesionEntrenamientoService {
@@ -11,25 +13,33 @@ export class SesionEntrenamientoService {
   ) {}
 
   async create(
-    sesion: Partial<SesionEntrenamiento>,
+    createSesionDto: CreateSesionEntrenamientoDto,
   ): Promise<SesionEntrenamiento> {
     const nuevaSesion = this.sesionRepository.create({
-      ...sesion,
-      fechaInicio: new Date(),
+      ...createSesionDto,
+      fechaInicio: new Date(createSesionDto.fechaInicio),
     });
     return await this.sesionRepository.save(nuevaSesion);
   }
 
   async findAll(): Promise<SesionEntrenamiento[]> {
     return await this.sesionRepository.find({
-      relations: ['usuario', 'resultados'],
+      relations: {
+        usuario: true,
+        resultados: true,
+        actividad: true,
+      },
     });
   }
 
   async findOne(id: number): Promise<SesionEntrenamiento> {
     const sesion = await this.sesionRepository.findOne({
       where: { id },
-      relations: ['usuario', 'resultados'],
+      relations: {
+        usuario: true,
+        resultados: true,
+        actividad: true,
+      },
     });
     if (!sesion) {
       throw new NotFoundException(`Sesión con ID ${id} no encontrada`);
@@ -53,9 +63,9 @@ export class SesionEntrenamientoService {
 
   async update(
     id: number,
-    updateData: Partial<SesionEntrenamiento>,
+    updateSesionDto: UpdateSesionEntrenamientoDto,
   ): Promise<SesionEntrenamiento> {
-    await this.sesionRepository.update(id, updateData);
+    await this.sesionRepository.update(id, updateSesionDto);
     return this.findOne(id);
   }
 

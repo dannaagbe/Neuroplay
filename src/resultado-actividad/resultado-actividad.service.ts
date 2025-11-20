@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ResultadoActividad } from './resultado-actividad.entity';
+import { CreateResultadoActividadDto } from './dtos/create-resultado-actividad.dto';
+import { UpdateResultadoActividadDto } from './dtos/update-resultado-actividad.dto';
 
 @Injectable()
 export class ResultadoActividadService {
@@ -11,11 +13,11 @@ export class ResultadoActividadService {
   ) {}
 
   async create(
-    resultado: Partial<ResultadoActividad>,
+    createResultadoDto: CreateResultadoActividadDto,
   ): Promise<ResultadoActividad> {
     const nuevoResultado = this.resultadoRepository.create({
-      ...resultado,
-      fecha: new Date(),
+      ...createResultadoDto,
+      fecha: new Date(createResultadoDto.fecha),
     });
     return await this.resultadoRepository.save(nuevoResultado);
   }
@@ -54,18 +56,18 @@ export class ResultadoActividadService {
     });
   }
 
-  async findByActividad(actividadId: number): Promise<ResultadoActividad[]> {
-    return await this.resultadoRepository.find({
-      where: { actividadId },
-      relations: ['usuario', 'sesionEntrenamiento'],
-    });
-  }
+  // async findByActividad(actividadId: number): Promise<ResultadoActividad[]> {
+  //   return await this.resultadoRepository.find({
+  //     where: { actividadId },
+  //     relations: ['usuario', 'sesionEntrenamiento'],
+  //   });
+  // }
 
   async update(
     id: number,
-    updateData: Partial<ResultadoActividad>,
+    updateResultadoDto: UpdateResultadoActividadDto,
   ): Promise<ResultadoActividad> {
-    await this.resultadoRepository.update(id, updateData);
+    await this.resultadoRepository.update(id, updateResultadoDto);
     return this.findOne(id);
   }
 

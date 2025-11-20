@@ -11,6 +11,8 @@ import { ActividadModule } from './actividad/actividad.module';
 import { PreguntaModule } from './pregunta/pregunta.module';
 import { SesionEntrenamientoModule } from './sesion-entrenamiento/sesion-entrenamiento.module';
 import { ResultadoActividadModule } from './resultado-actividad/resultado-actividad.module';
+import { TipoActividadModule } from './actividad/tipo-actividad/tipo-actividad.module';
+import { NivelDificultadModule } from './nivel-dificultad/nivel-dificultad.module';
 
 @Module({
   imports: [
@@ -25,16 +27,19 @@ import { ResultadoActividadModule } from './resultado-actividad/resultado-activi
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_NAME || 'neuroplay',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
-      synchronize: true,
+      synchronize: false,
+      autoLoadEntities: true,
     }),
     UsersModule,
     AuthModule,
     ConfiguracionUsuarioModule,
     EstadisticaUsuarioModule,
     ActividadModule,
+    TipoActividadModule,
     PreguntaModule,
     SesionEntrenamientoModule,
     ResultadoActividadModule,
+    NivelDificultadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

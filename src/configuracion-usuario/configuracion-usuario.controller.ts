@@ -11,6 +11,8 @@ import {
 import { ConfiguracionUsuarioService } from './configuracion-usuario.service';
 import { ConfiguracionUsuario } from './configuracion-usuario.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateConfiguracionUsuarioDto } from './dtos/create-configuracion-usuario.dto';
+import { UpdateConfiguracionUsuarioDto } from './dtos/update-configuracion-usuario.dto';
 
 @Controller('configuracion-usuario')
 @UseGuards(JwtAuthGuard)
@@ -20,8 +22,8 @@ export class ConfiguracionUsuarioController {
   ) {}
 
   @Post()
-  create(@Body() configuracion: Partial<ConfiguracionUsuario>) {
-    return this.configuracionUsuarioService.create(configuracion);
+  create(@Body() createConfiguracionDto: CreateConfiguracionUsuarioDto) {
+    return this.configuracionUsuarioService.create(createConfiguracionDto);
   }
 
   @Get()
@@ -42,9 +44,9 @@ export class ConfiguracionUsuarioController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateData: Partial<ConfiguracionUsuario>,
+    @Body() updateConfiguracionDto: UpdateConfiguracionUsuarioDto,
   ) {
-    return this.configuracionUsuarioService.update(+id, updateData);
+    return this.configuracionUsuarioService.update(+id, updateConfiguracionDto);
   }
 
   @Delete(':id')

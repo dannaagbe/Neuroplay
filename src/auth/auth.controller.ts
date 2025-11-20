@@ -1,18 +1,17 @@
 import { Controller, Post, Body, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { LoginDto } from './dtos/login.dto';
+import { RegisterDto } from './dtos/register.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body: { correo: string; password: string }) {
-    if (!body || !body.correo || !body.password) {
-      throw new BadRequestException('Correo y password son requeridos');
-    }
+  async login(@Body() loginDto: LoginDto) {
     const user = await this.authService.validateUser(
-      body.correo,
-      body.password,
+      loginDto.correo,
+      loginDto.password,
     );
     if (!user) {
       return { message: 'Correo o password incorrectos' };
@@ -21,10 +20,7 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() body: any) {
-    if (!body || !body.correo || !body.password) {
-      throw new BadRequestException('Correo y password son requeridos');
-    }
-    return this.authService.register(body);
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(registerDto);
   }
 }

@@ -17,8 +17,7 @@ export class ResultadoActividad {
   @Column()
   usuarioId: number;
 
-  @Column()
-  actividadId: number;
+  
 
   @Column()
   sesionEntrenamientoId: number;
@@ -38,10 +37,6 @@ export class ResultadoActividad {
   @ManyToOne(() => User, (user) => user.resultados)
   @JoinColumn({ name: 'usuarioId' })
   usuario: User;
-
-  @ManyToOne(() => Actividad, (actividad) => actividad.resultados)
-  @JoinColumn({ name: 'actividadId' })
-  actividad: Actividad;
 
   @ManyToOne(() => SesionEntrenamiento, (sesion) => sesion.resultados)
   @JoinColumn({ name: 'sesionEntrenamientoId' })

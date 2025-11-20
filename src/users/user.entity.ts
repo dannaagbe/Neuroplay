@@ -4,12 +4,15 @@ import {
   Column,
   OneToOne,
   OneToMany,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
 import { ConfiguracionUsuario } from '../configuracion-usuario/configuracion-usuario.entity';
 import { EstadisticaUsuario } from '../estadistica-usuario/estadistica-usuario.entity';
 import { SesionEntrenamiento } from '../sesion-entrenamiento/sesion-entrenamiento.entity';
 import { ResultadoActividad } from '../resultado-actividad/resultado-actividad.entity';
 import { UserRole } from './user-role.enum';
+import { NivelDificultad } from '../nivel-dificultad/entities/nivel-dificultad.entity';
 
 @Entity('USUARIO')
 export class User {
@@ -35,8 +38,12 @@ export class User {
   @Column()
   idiomaPreferido: string;
 
-  @Column()
-  nivelInicial: string;
+  @Column({ nullable: true })
+  nivelInicialId: number;
+
+  @ManyToOne(() => NivelDificultad, { nullable: true })
+  @JoinColumn({ name: 'nivelInicialId' })
+  nivelInicial: NivelDificultad;
 
   @OneToOne(() => ConfiguracionUsuario, (config) => config.usuario)
   configuracion: ConfiguracionUsuario;

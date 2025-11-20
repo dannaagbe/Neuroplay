@@ -4,29 +4,55 @@ import { Repository } from 'typeorm';
 import { QueryFailedError } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcryptjs';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
+import { NivelDificultad } from '../nivel-dificultad/entities/nivel-dificultad.entity';
+import { UserRole } from './user-role.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(NivelDificultad)
+    private nivelDificultadRepository: Repository<NivelDificultad>,
   ) {}
 
   findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+    return this.usersRepository.find({
+      relations: ['nivelInicial'],
+    });
   }
 
   findOne(id: number): Promise<User | null> {
-    return this.usersRepository.findOneBy({ id });
+    return this.usersRepository.findOne({
+      where: { id },
+      relations: ['nivelInicial'],
+    });
   }
 
   findByCorreo(correo: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ correo });
   }
 
-  async create(user: Partial<User>): Promise<User> {
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    console.log(createUserDto)
+    
+    const user = { ...createUserDto };
+    console.log(user)
     if (!user.password) throw new BadRequestException('Password requerido');
     user.password = await bcrypt.hash(user.password, 10);
+
+    // Asignar nivel principiante automáticamente si es estudiante y no tiene nivel
+    if ((!user.rol || user.rol === UserRole.ESTUDIANTE) && !user.nivelInicialId) {
+      const nivelPrincipiante = await this.nivelDificultadRepository.findOne({
+        where: { codigo: 'PRINCIPIANTE' },
+      });
+      if (nivelPrincipiante) {
+        user.nivelInicialId = nivelPrincipiante.id;
+      }
+    }
+
     const newUser = this.usersRepository.create(user);
     try {
       return await this.usersRepository.save(newUser);
@@ -42,7 +68,8 @@ export class UsersService {
     }
   }
 
-  async update(id: number, updateData: Partial<User>): Promise<User> {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    const updateData = { ...updateUserDto };
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
     }

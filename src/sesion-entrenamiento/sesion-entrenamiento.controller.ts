@@ -11,6 +11,8 @@ import {
 import { SesionEntrenamientoService } from './sesion-entrenamiento.service';
 import { SesionEntrenamiento } from './sesion-entrenamiento.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateSesionEntrenamientoDto } from './dtos/create-sesion-entrenamiento.dto';
+import { UpdateSesionEntrenamientoDto } from './dtos/update-sesion-entrenamiento.dto';
 
 @Controller('sesion-entrenamiento')
 @UseGuards(JwtAuthGuard)
@@ -20,8 +22,8 @@ export class SesionEntrenamientoController {
   ) {}
 
   @Post()
-  create(@Body() sesion: Partial<SesionEntrenamiento>) {
-    return this.sesionEntrenamientoService.create(sesion);
+  create(@Body() createSesionDto: CreateSesionEntrenamientoDto) {
+    return this.sesionEntrenamientoService.create(createSesionDto);
   }
 
   @Get()
@@ -47,9 +49,9 @@ export class SesionEntrenamientoController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateData: Partial<SesionEntrenamiento>,
+    @Body() updateSesionDto: UpdateSesionEntrenamientoDto,
   ) {
-    return this.sesionEntrenamientoService.update(+id, updateData);
+    return this.sesionEntrenamientoService.update(+id, updateSesionDto);
   }
 
   @Delete(':id')

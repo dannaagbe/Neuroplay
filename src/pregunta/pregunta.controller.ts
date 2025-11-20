@@ -12,6 +12,8 @@ import { PreguntaService } from './pregunta.service';
 import { Pregunta } from './pregunta.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { DocenteGuard } from '../auth/docente.guard';
+import { CreatePreguntaDto } from './dtos/create-pregunta.dto';
+import { UpdatePreguntaDto } from './dtos/update-pregunta.dto';
 
 @Controller('pregunta')
 @UseGuards(JwtAuthGuard)
@@ -20,8 +22,8 @@ export class PreguntaController {
 
   @Post()
   @UseGuards(DocenteGuard)
-  create(@Body() pregunta: Partial<Pregunta>) {
-    return this.preguntaService.create(pregunta);
+  create(@Body() createPreguntaDto: CreatePreguntaDto) {
+    return this.preguntaService.create(createPreguntaDto);
   }
 
   @Get()
@@ -41,8 +43,8 @@ export class PreguntaController {
 
   @Patch(':id')
   @UseGuards(DocenteGuard)
-  update(@Param('id') id: string, @Body() updateData: Partial<Pregunta>) {
-    return this.preguntaService.update(+id, updateData);
+  update(@Param('id') id: string, @Body() updatePreguntaDto: UpdatePreguntaDto) {
+    return this.preguntaService.update(+id, updatePreguntaDto);
   }
 
   @Delete(':id')

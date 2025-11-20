@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ConfiguracionUsuario } from './configuracion-usuario.entity';
+import { CreateConfiguracionUsuarioDto } from './dtos/create-configuracion-usuario.dto';
+import { UpdateConfiguracionUsuarioDto } from './dtos/update-configuracion-usuario.dto';
 
 @Injectable()
 export class ConfiguracionUsuarioService {
@@ -11,10 +13,10 @@ export class ConfiguracionUsuarioService {
   ) {}
 
   async create(
-    configuracion: Partial<ConfiguracionUsuario>,
+    createConfiguracionDto: CreateConfiguracionUsuarioDto,
   ): Promise<ConfiguracionUsuario> {
     const nuevaConfiguracion =
-      this.configuracionRepository.create(configuracion);
+      this.configuracionRepository.create(createConfiguracionDto);
     return await this.configuracionRepository.save(nuevaConfiguracion);
   }
 
@@ -48,9 +50,9 @@ export class ConfiguracionUsuarioService {
 
   async update(
     id: number,
-    updateData: Partial<ConfiguracionUsuario>,
+    updateConfiguracionDto: UpdateConfiguracionUsuarioDto,
   ): Promise<ConfiguracionUsuario> {
-    await this.configuracionRepository.update(id, updateData);
+    await this.configuracionRepository.update(id, updateConfiguracionDto);
     return this.findOne(id);
   }
 

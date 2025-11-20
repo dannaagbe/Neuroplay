@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   UseGuards,
-  Req,
   ForbiddenException,
 } from '@nestjs/common';
 import { ResultadoActividadService } from './resultado-actividad.service';
@@ -15,13 +14,10 @@ import { ResultadoActividad } from './resultado-actividad.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { DocenteGuard } from '../auth/docente.guard';
 import { UserRole } from '../users/user-role.enum';
-
-interface RequestWithUser extends Request {
-  user: {
-    id: number;
-    rol: UserRole;
-  };
-}
+import { CreateResultadoActividadDto } from './dtos/create-resultado-actividad.dto';
+import { UpdateResultadoActividadDto } from './dtos/update-resultado-actividad.dto';
+import { GetUserRole } from '../auth/get-user-role.decorator';
+import { GetUserId } from '../auth/get-user-id.decorator';
 
 @Controller('resultado-actividad')
 @UseGuards(JwtAuthGuard)
@@ -31,25 +27,25 @@ export class ResultadoActividadController {
   ) {}
 
   @Post()
-  create(@Body() resultado: Partial<ResultadoActividad>) {
-    return this.resultadoActividadService.create(resultado);
+  create(@Body() createResultadoDto: CreateResultadoActividadDto) {
+    return this.resultadoActividadService.create(createResultadoDto);
   }
 
   @Get()
-  async findAll(@Req() req: RequestWithUser) {
-    if (req.user.rol === UserRole.DOCENTE) {
+  async findAll(@GetUserRole() role: UserRole, @GetUserId() userId: number) {
+    if (role === UserRole.DOCENTE) {
       return this.resultadoActividadService.findAll();
     } else {
-      return this.resultadoActividadService.findByUsuario(req.user.id);
+      return this.resultadoActividadService.findByUsuario(userId);
     }
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string, @Req() req: RequestWithUser) {
+  async findOne(@Param('id') id: string, @GetUserRole() role: UserRole, @GetUserId() userId: number) {
     const resultado = await this.resultadoActividadService.findOne(+id);
     if (
-      req.user.rol !== UserRole.DOCENTE &&
-      resultado.usuarioId !== req.user.id
+      role !== UserRole.DOCENTE &&
+      resultado.usuarioId !== userId
     ) {
       throw new ForbiddenException('Solo puedes ver tus propios resultados');
     }
@@ -59,9 +55,10 @@ export class ResultadoActividadController {
   @Get('usuario/:usuarioId')
   async findByUsuario(
     @Param('usuarioId') usuarioId: string,
-    @Req() req: RequestWithUser,
+    @GetUserRole() role: UserRole,
+    @GetUserId() userId: number,
   ) {
-    if (req.user.rol !== UserRole.DOCENTE && +usuarioId !== req.user.id) {
+    if (role !== UserRole.DOCENTE && +usuarioId !== userId) {
       throw new ForbiddenException('Solo puedes ver tus propios resultados');
     }
     return this.resultadoActividadService.findByUsuario(+usuarioId);
@@ -70,40 +67,42 @@ export class ResultadoActividadController {
   @Get('sesion/:sesionId')
   async findBySesion(
     @Param('sesionId') sesionId: string,
-    @Req() req: RequestWithUser,
+    @GetUserRole() role: UserRole,
+    @GetUserId() userId: number,
   ) {
     // Los estudiantes pueden ver resultados de sesiones que les pertenecen
     const resultados =
       await this.resultadoActividadService.findBySesion(+sesionId);
-    if (req.user.rol !== UserRole.DOCENTE) {
+    if (role !== UserRole.DOCENTE) {
       // Filtrar solo los resultados del usuario actual
-      return resultados.filter((r) => r.usuarioId === req.user.id);
+      return resultados.filter((r) => r.usuarioId === userId);
     }
     return resultados;
   }
 
-  @Get('actividad/:actividadId')
-  async findByActividad(
-    @Param('actividadId') actividadId: string,
-    @Req() req: RequestWithUser,
-  ) {
-    const resultados =
-      await this.resultadoActividadService.findByActividad(+actividadId);
+  // @Get('actividad/:actividadId')
+  // async findByActividad(
+  //   @Param('actividadId') actividadId: string,
+  //   @GetUserRole() role: UserRole,
+  //   @GetUserId() userId: number,
+  // ) {
+  //   const resultados =
+  //     await this.resultadoActividadService.findByActividad(+actividadId);
 
-    if (req.user.rol !== UserRole.DOCENTE) {
-      // Filtrar solo los resultados del usuario actual
-      return resultados.filter((r) => r.usuarioId === req.user.id);
-    }
-    return resultados;
-  }
+  //   if (role !== UserRole.DOCENTE) {
+  //     // Filtrar solo los resultados del usuario actual
+  //     return resultados.filter((r) => r.usuarioId === userId);
+  //   }
+  //   return resultados;
+  // }
 
   @Patch(':id')
   @UseGuards(DocenteGuard)
   update(
     @Param('id') id: string,
-    @Body() updateData: Partial<ResultadoActividad>,
+    @Body() updateResultadoDto: UpdateResultadoActividadDto,
   ) {
-    return this.resultadoActividadService.update(+id, updateData);
+    return this.resultadoActividadService.update(+id, updateResultadoDto);
   }
 
   @Delete(':id')

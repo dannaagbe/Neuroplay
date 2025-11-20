@@ -13,6 +13,8 @@ import { ActividadService } from './actividad.service';
 import { Actividad } from './actividad.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { DocenteGuard } from '../auth/docente.guard';
+import { CreateActividadDto } from './dtos/create-actividad.dto';
+import { UpdateActividadDto } from './dtos/update-actividad.dto';
 
 @Controller('actividad')
 @UseGuards(JwtAuthGuard)
@@ -21,19 +23,19 @@ export class ActividadController {
 
   @Post()
   @UseGuards(DocenteGuard)
-  create(@Body() actividad: Partial<Actividad>) {
-    return this.actividadService.create(actividad);
+  create(@Body() createActividadDto: CreateActividadDto) {
+    return this.actividadService.create(createActividadDto);
   }
 
   @Get()
-  findAll(@Query('tipo') tipo?: string, @Query('nivel') nivel?: string) {
-    if (tipo) {
-      return this.actividadService.findByTipo(tipo);
-    }
-    if (nivel) {
-      return this.actividadService.findByNivel(nivel);
-    }
-    return this.actividadService.findAll();
+  findAll(
+    @Query('tipoId') tipoId?: string,
+    @Query('nivelDificultadId') nivelDificultadId?: string,
+  ) {
+    return this.actividadService.findAll(
+      tipoId ? +tipoId : undefined,
+      nivelDificultadId ? +nivelDificultadId : undefined,
+    );
   }
 
   @Get(':id')
@@ -43,8 +45,8 @@ export class ActividadController {
 
   @Patch(':id')
   @UseGuards(DocenteGuard)
-  update(@Param('id') id: string, @Body() updateData: Partial<Actividad>) {
-    return this.actividadService.update(+id, updateData);
+  update(@Param('id') id: string, @Body() updateActividadDto: UpdateActividadDto) {
+    return this.actividadService.update(+id, updateActividadDto);
   }
 
   @Delete(':id')

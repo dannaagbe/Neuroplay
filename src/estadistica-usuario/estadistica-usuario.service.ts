@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EstadisticaUsuario } from './estadistica-usuario.entity';
+import { CreateEstadisticaUsuarioDto } from './dtos/create-estadistica-usuario.dto';
+import { UpdateEstadisticasUsuarioDTO } from './dtos/update-estadisticas-usuario.dto';
 
 @Injectable()
 export class EstadisticaUsuarioService {
@@ -11,7 +13,7 @@ export class EstadisticaUsuarioService {
   ) {}
 
   async create(
-    estadistica: Partial<EstadisticaUsuario>,
+    estadistica: CreateEstadisticaUsuarioDto,
   ): Promise<EstadisticaUsuario> {
     const nuevaEstadistica = this.estadisticaRepository.create(estadistica);
     return await this.estadisticaRepository.save(nuevaEstadistica);
@@ -47,7 +49,7 @@ export class EstadisticaUsuarioService {
 
   async update(
     id: number,
-    updateData: Partial<EstadisticaUsuario>,
+    updateData: UpdateEstadisticasUsuarioDTO,
   ): Promise<EstadisticaUsuario> {
     await this.estadisticaRepository.update(id, updateData);
     return this.findOne(id);

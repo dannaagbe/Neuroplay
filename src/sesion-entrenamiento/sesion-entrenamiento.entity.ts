@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { ResultadoActividad } from '../resultado-actividad/resultado-actividad.entity';
+import { Actividad } from 'src/actividad/actividad.entity';
 
 @Entity('SESION_ENTRENAMIENTO')
 export class SesionEntrenamiento {
@@ -29,6 +30,13 @@ export class SesionEntrenamiento {
   @ManyToOne(() => User, (user) => user.sesiones)
   @JoinColumn({ name: 'usuarioId' })
   usuario: User;
+
+  @Column()
+  actividadId: number;
+
+  @ManyToOne(() => Actividad, (actividad) => actividad.sesiones)
+  @JoinColumn({ name: 'actividadId' })
+  actividad: Actividad;
 
   @OneToMany(
     () => ResultadoActividad,

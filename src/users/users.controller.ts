@@ -12,6 +12,8 @@ import {
 import { UsersService } from './users.service';
 import { User } from './user.entity';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateUserDto } from './dtos/create-user.dto';
+import { UpdateUserDto } from './dtos/update-user.dto';
 
 @Controller('users')
 @UseGuards(JwtAuthGuard)
@@ -31,16 +33,13 @@ export class UsersController {
   }
 
   @Post()
-  async create(@Body() user: Partial<User>): Promise<User> {
-    if (!user.correo || !user.password) {
-      throw new BadRequestException('Correo y password son requeridos');
-    }
-    return this.usersService.create(user);
+  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+    return this.usersService.create(createUserDto);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() user: Partial<User>): Promise<User> {
-    return this.usersService.update(Number(id), user);
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<User> {
+    return this.usersService.update(Number(id), updateUserDto);
   }
 
   @Delete(':id')
